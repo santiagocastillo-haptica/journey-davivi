@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /insights/{insightId} {
+      // Cualquiera puede leer (la app necesita mostrar los datos sin login).
+      allow read: if true;
+
+      // Solo se permite escribir si el documento enviado incluye el PIN correcto.
+      // Esto no reemplaza autenticación real, pero evita que alguien que solo
+      // tenga el projectId (visible en el repo público de GitHub) pueda escribir
+      // directamente a la base de datos sin pasar por la aplicación.
+      allow write: if request.resource.data.pin == "025afadaf6d649969e344adc0b22acbf";
+    }
+  }
+}
