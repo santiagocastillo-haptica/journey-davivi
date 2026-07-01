@@ -2296,276 +2296,88 @@ function FilterGroup({ title, items, active, onToggle, mt }) {
   );
 }
 
-// ─── VISTA: ASISTENTE IA ──────────────────────────────────────────────────────
-const RESPUESTAS = {
-  inestabilidad: {
-    pregunta: "¿Qué dijeron los usuarios sobre la inestabilidad laboral?",
-    resumen:
-      "Para los Adultos Jóvenes que trabajan por prestación de servicios, la inestabilidad contractual no es solo un problema de flujo de caja: erosiona su sentido de progreso y los obliga a depender de ahorros o préstamos familiares durante los meses sin ingresos.",
-    insightRelacionado:
-      "La inestabilidad contractual no es solo un problema económico, es una crisis de proyecto de vida",
-    evidencias: [
-      {
-        codigo: "JOV-07",
-        cita: "Yo creo que inestabilidad en el sentido laboral… uno tiene meses que no entra nada y eso frena todo lo que uno tiene planeado.",
-      },
-      {
-        codigo: "JOV-03",
-        cita: "Yo he saltado de trabajos y eso no ha sido tan bueno, porque también me ha limitado en poder crecer en otras áreas.",
-      },
-    ],
-    segmento: "Adultos Jóvenes — Trabajadores con inestabilidad laboral",
-  },
-  comparativa: {
-    pregunta: "¿Qué diferencias existen entre Adultos Jóvenes y Adultos Mayores?",
-    tabla: [
-      {
-        dimension: "Motivaciones",
-        jovenes: "Buscan estabilidad para independizarse económicamente",
-        mayores: "Valoran la cercanía familiar y el control sobre su dinero",
-      },
-      {
-        dimension: "Problemáticas",
-        jovenes: "Excluidos por ingresos variables y falta de historial crediticio",
-        mayores: "Evitan canales digitales por miedo a errores o fraudes",
-      },
-      {
-        dimension: "Inversiones",
-        jovenes: "Priorizan liquidez y productos de corto plazo",
-        mayores: "Prefieren bajísimo riesgo (CDTs, fiducias) o ninguna inversión activa",
-      },
-    ],
-  },
-  diseno: {
-    pregunta:
-      "Quiero diseñar una solución para la inestabilidad contractual. ¿Qué debería considerar?",
-    contexto:
-      "Este insight vive dentro del Proyecto Independencia, en el momento de solicitud de crédito de consumo. Los clientes contratistas enfrentan hasta 4 meses sin ingresos entre contratos.",
-    necesidades: [
-      "Que el sistema de evaluación no penalice la prestación de servicios vs. contrato fijo",
-      "Un mecanismo de ahorro diseñado para ingresos irregulares",
-    ],
-    fricciones: [
-      "El motor actual asume ingreso mensual constante para calcular cuota máxima",
-      "No existe un producto que distinga 'sin ingresos temporalmente' de 'alto riesgo'",
-    ],
-    oportunidades: [
-      "Diseñar un crédito que evalúe ingresos promedio anuales, no ingreso mensual fijo.",
-      "Crear un mecanismo de ahorro buffer para contratistas que separe automáticamente un porcentaje durante los meses activos.",
-    ],
-  },
-  fraude: {
-    pregunta:
-      "¿Qué tanto desconfían los usuarios de los canales digitales por miedo a fraudes?",
-    resumen:
-      "El miedo a fraudes y estafas digitales aparece en los tres segmentos. Para algunos significa evitar transacciones por internet; para otros, las alertas del banco se sienten como garantía aunque a veces invasivas.",
-    insightRelacionado: "Más que falta de voluntad, es miedo a equivocarse a solas",
-    evidencias: [
-      {
-        codigo: "MAD-05",
-        cita: "El tema de la inseguridad es tan mal como la estamos viviendo… uno quiere hacer una transacción y tiene miedo. Hay que tener mucho cuidado con eso.",
-      },
-      {
-        codigo: "JOV-06",
-        cita: "Siempre que entro a la aplicación me llega un correo, me llega un mensaje, me llega un WhatsApp… siento que a veces es un poco invasivo.",
-      },
-      {
-        codigo: "MAYR-05",
-        cita: "El banco ha logrado detener cualquier intento de fraude. Cada vez que hay una transacción me llega correo y mensaje de texto. Eso me ha parecido buenísimo.",
-      },
-    ],
-    segmento: "Aparece en Adultos Jóvenes, Adultos Maduros y Adultos Mayores por igual",
-  },
-};
+// ─── SYSTEM PROMPT para el Asistente IA ─────────────────────────────────────
+const SYSTEM_PROMPT = `Eres un asistente de investigación para el proyecto Journey Experience Intelligence de Háptica × Davivienda. Tienes acceso completo a la investigación cualitativa realizada con usuarios del banco Davivienda en Colombia, segmento Persona Natural.
 
-function RespuestaChat({ tipo }) {
-  const r = RESPUESTAS[tipo];
-  if (!r) return null;
+La investigación cubre tres segmentos de edad:
+- Adultos Jóvenes (29-44 años): Solteros en construcción patrimonial, Trabajadores con inestabilidad laboral, Proveedores tempranos de adultos mayores, Jefes de familia
+- Adultos Maduros (45-60 años): Generación Sándwich Crítica, Solteros Independientes sin Dependientes, Sobrevivientes en Recuperación Financiera
+- Adultos Mayores (60+): Dependientes (sin pensión), Pensionados Activos y Emprendedores, Retirados Tradicionales
 
-  if (tipo === "comparativa") {
-    return (
-      <div>
-        <p style={{ margin: "0 0 12px", fontSize: 14, lineHeight: 1.6 }}>
-          Aquí tienes una comparativa de los dos segmentos en tres dimensiones clave:
-        </p>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr>
-                {["Dimensión", "Adultos Jóvenes (29-44)", "Adultos Mayores (60+)"].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      background: C.fondoPanel,
-                      padding: "8px 12px",
-                      textAlign: "left",
-                      fontWeight: 700,
-                      color: C.negro,
-                      borderBottom: `2px solid ${C.borde}`,
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {r.tabla.map((row, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.borde}` }}>
-                  <td style={{ padding: "10px 12px", fontWeight: 700, color: C.grisOscuro, fontSize: 12 }}>
-                    {row.dimension}
-                  </td>
-                  <td style={{ padding: "10px 12px", color: "#333", lineHeight: 1.5 }}>{row.jovenes}</td>
-                  <td style={{ padding: "10px 12px", color: "#333", lineHeight: 1.5 }}>{row.mayores}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  }
+Los 18 insights identificados cubren temas como inestabilidad laboral, carga de cuidado familiar, incertidumbre pensional, acceso a crédito, desconfianza digital, independencia financiera, legado y trascendencia.
 
-  if (tipo === "diseno") {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ background: C.fondoPanel, borderRadius: 10, padding: "12px 16px" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "#333", lineHeight: 1.6 }}>
-            <strong>Contexto:</strong> {r.contexto}
-          </p>
-        </div>
-        <div>
-          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Necesidades identificadas
-          </p>
-          {r.necesidades.map((n, i) => (
-            <p key={i} style={{ margin: "0 0 4px", fontSize: 13, color: "#333", paddingLeft: 14, borderLeft: `3px solid #3DA35D` }}>
-              {n}
-            </p>
-          ))}
-        </div>
-        <div>
-          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Fricciones actuales
-          </p>
-          {r.fricciones.map((f, i) => (
-            <p key={i} style={{ margin: "0 0 4px", fontSize: 13, color: "#333", paddingLeft: 14, borderLeft: `3px solid ${C.rojo}` }}>
-              {f}
-            </p>
-          ))}
-        </div>
-        <div>
-          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Oportunidades
-          </p>
-          {r.oportunidades.map((op, i) => (
-            <div
-              key={i}
-              style={{
-                background: C.rojoBg,
-                border: `1px solid ${C.rojo}25`,
-                borderRadius: 8,
-                padding: "8px 12px",
-                fontSize: 13,
-                color: C.rojo,
-                marginBottom: 6,
-              }}
-            >
-              {op}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+Los proyectos de vida son: Proyecto Independencia (Jóvenes), Proyecto Adultez (Jóvenes + Maduros), Proyecto Metas Propias (Maduros), Proyecto Apoyo Bilateral (Maduros), Proyecto Nueva Rutina (Maduros + Mayores), Proyecto Autonomía (Mayores).
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <p style={{ margin: 0, fontSize: 14, color: "#333", lineHeight: 1.7 }}>{r.resumen}</p>
-      {r.insightRelacionado && (
-        <div style={{ background: C.rojoBg, borderRadius: 10, padding: "10px 14px" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.rojo, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Insight relacionado
-          </span>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: C.rojo, fontWeight: 600 }}>
-            {r.insightRelacionado}
-          </p>
-        </div>
-      )}
-      {r.evidencias && (
-        <div>
-          <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Evidencias
-          </p>
-          {r.evidencias.map((ev, i) => (
-            <div
-              key={i}
-              style={{
-                background: C.fondoPanel,
-                borderLeft: `3px solid ${C.rojo}`,
-                borderRadius: "0 8px 8px 0",
-                padding: "10px 14px",
-                marginBottom: 8,
-              }}
-            >
-              <p style={{ margin: "0 0 4px", fontSize: 13, color: "#333", fontStyle: "italic" }}>
-                "{ev.cita}"
-              </p>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase" }}>
-                — {ev.codigo}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-      {r.segmento && (
-        <p style={{ margin: 0, fontSize: 12, color: C.grisOscuro }}>
-          <strong>Segmento:</strong> {r.segmento}
-        </p>
-      )}
-    </div>
-  );
-}
+Evidencias reales de entrevistados incluyen voces de: JOV-01, JOV-02, JOV-03, JOV-04, JOV-06, JOV-07, MAD-01, MAD-03, MAD-04, MAD-05, MAYR-03, MAYR-04, MAYR-05.
 
+Puedes responder preguntas sobre la investigación, ayudar a diseñar soluciones financieras, comparar segmentos, analizar insights, y también responder preguntas generales. Responde siempre en español, de manera clara y concisa. Cuando cites evidencias de entrevistados, usa su código (ej. JOV-03).`;
+
+// ─── VISTA: ASISTENTE IA (con Claude API real) ───────────────────────────────
 function ViewAsistente({ preguntaInicial }) {
   const [mensajes, setMensajes] = useState([]);
   const [input, setInput] = useState("");
-  const [usadas, setUsadas] = useState([]);
+  const [cargando, setCargando] = useState(false);
 
-  const sugeridas = [
-    { key: "inestabilidad", texto: RESPUESTAS.inestabilidad.pregunta },
-    { key: "comparativa", texto: RESPUESTAS.comparativa.pregunta },
-    { key: "diseno", texto: RESPUESTAS.diseno.pregunta },
-    { key: "fraude", texto: RESPUESTAS.fraude.pregunta },
-  ].filter((p) => !usadas.includes(p.key));
+  const SUGERIDAS = [
+    "¿Qué dijeron los usuarios sobre la inestabilidad laboral?",
+    "¿Qué diferencias existen entre Adultos Jóvenes y Adultos Mayores?",
+    "Quiero diseñar una solución para la incertidumbre pensional. ¿Qué debería considerar?",
+    "¿Qué tanto desconfían los usuarios de los canales digitales por miedo a fraudes?",
+  ];
 
-  function enviar(pregunta, clave) {
+  async function enviar(pregunta) {
+    if (!pregunta.trim() || cargando) return;
     const nuevos = [...mensajes, { tipo: "usuario", texto: pregunta }];
-    if (clave && RESPUESTAS[clave]) {
-      nuevos.push({ tipo: "bot", clave });
-      setUsadas([...usadas, clave]);
-    } else {
-      nuevos.push({
-        tipo: "bot",
-        texto:
-          "Este prototipo del Asistente IA cubre únicamente las preguntas sugeridas de la guía. Para profundizar en un hallazgo específico, selecciona una de las preguntas disponibles.",
-      });
-    }
     setMensajes(nuevos);
     setInput("");
+    setCargando(true);
+
+    try {
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error("API key no configurada");
+
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5",
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: [
+            ...nuevos
+              .filter((m) => m.tipo === "usuario")
+              .map((m) => ({ role: "user", content: m.texto })),
+          ],
+        }),
+      });
+
+      if (!response.ok) throw new Error(`Error ${response.status}`);
+      const data = await response.json();
+      const respuesta = data.content?.[0]?.text || "No se pudo obtener respuesta.";
+      setMensajes([...nuevos, { tipo: "bot", texto: respuesta }]);
+    } catch (err) {
+      setMensajes([
+        ...nuevos,
+        {
+          tipo: "bot",
+          texto: `No se pudo conectar con el asistente. ${err.message === "API key no configurada" ? "La clave de API no está disponible en este entorno." : "Verifica tu conexión e inténtalo de nuevo."}`,
+        },
+      ]);
+    } finally {
+      setCargando(false);
+    }
   }
 
-  function handleSugerida(key, texto) {
-    enviar(texto, key);
-  }
-
-  function handleEnviar() {
-    if (!input.trim()) return;
-    const texto = input.trim();
-    const clave = Object.keys(RESPUESTAS).find((k) =>
-      RESPUESTAS[k].pregunta.toLowerCase().includes(texto.toLowerCase().slice(0, 20))
-    );
-    enviar(texto, clave || null);
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      enviar(input);
+    }
   }
 
   return (
@@ -2581,52 +2393,6 @@ function ViewAsistente({ preguntaInicial }) {
       <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 24, alignItems: "start" }}>
         {/* Panel izquierdo */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {sugeridas.length > 0 && (
-            <div
-              style={{
-                background: C.fondoPanel,
-                border: `1px solid ${C.borde}`,
-                borderRadius: 16,
-                padding: 20,
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: C.grisOscuro,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  margin: "0 0 12px",
-                }}
-              >
-                Preguntas sugeridas
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {sugeridas.map((p) => (
-                  <button
-                    key={p.key}
-                    onClick={() => handleSugerida(p.key, p.texto)}
-                    style={{
-                      background: C.blanco,
-                      border: `1px solid ${C.borde}`,
-                      borderRadius: 10,
-                      padding: "10px 14px",
-                      fontSize: 13,
-                      color: C.negro,
-                      cursor: "pointer",
-                      textAlign: "left",
-                      lineHeight: 1.4,
-                      fontFamily: "Inter, sans-serif",
-                    }}
-                  >
-                    {p.texto}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div
             style={{
               background: C.fondoPanel,
@@ -2635,53 +2401,33 @@ function ViewAsistente({ preguntaInicial }) {
               padding: 20,
             }}
           >
-            <p
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: C.grisOscuro,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                margin: "0 0 10px",
-              }}
-            >
-              Pregunta libre
+            <p style={{ fontSize: 12, fontWeight: 700, color: C.grisOscuro, textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 12px" }}>
+              Preguntas sugeridas
             </p>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe tu pregunta..."
-              rows={3}
-              style={{
-                width: "100%",
-                border: `1px solid ${C.borde}`,
-                borderRadius: 10,
-                padding: "10px 12px",
-                fontSize: 13,
-                fontFamily: "Inter, sans-serif",
-                resize: "vertical",
-                outline: "none",
-                boxSizing: "border-box",
-                marginBottom: 10,
-              }}
-            />
-            <button
-              onClick={handleEnviar}
-              style={{
-                background: C.rojo,
-                color: C.blanco,
-                border: "none",
-                borderRadius: 99,
-                padding: "9px 20px",
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: "pointer",
-                fontFamily: "Inter, sans-serif",
-                width: "100%",
-              }}
-            >
-              Preguntar
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {SUGERIDAS.map((p, i) => (
+                <button
+                  key={i}
+                  onClick={() => enviar(p)}
+                  disabled={cargando}
+                  style={{
+                    background: C.blanco,
+                    border: `1px solid ${C.borde}`,
+                    borderRadius: 10,
+                    padding: "10px 14px",
+                    fontSize: 13,
+                    color: C.negro,
+                    cursor: cargando ? "default" : "pointer",
+                    textAlign: "left",
+                    lineHeight: 1.4,
+                    fontFamily: "Inter, sans-serif",
+                    opacity: cargando ? 0.5 : 1,
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -2699,28 +2445,12 @@ function ViewAsistente({ preguntaInicial }) {
           }}
         >
           {mensajes.length === 0 && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: 200,
-                color: C.grisOscuro,
-                fontSize: 14,
-                textAlign: "center",
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200, color: C.grisOscuro, fontSize: 14, textAlign: "center" }}>
               Selecciona una pregunta sugerida o escribe la tuya.
             </div>
           )}
           {mensajes.map((m, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: m.tipo === "usuario" ? "flex-end" : "flex-start",
-              }}
-            >
+            <div key={i} style={{ display: "flex", justifyContent: m.tipo === "usuario" ? "flex-end" : "flex-start" }}>
               <div
                 style={{
                   maxWidth: "85%",
@@ -2731,19 +2461,73 @@ function ViewAsistente({ preguntaInicial }) {
                   fontSize: 14,
                   lineHeight: 1.6,
                   boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                  whiteSpace: "pre-wrap",
                 }}
               >
-                {m.clave ? <RespuestaChat tipo={m.clave} /> : m.texto}
+                {m.texto}
               </div>
             </div>
           ))}
+          {cargando && (
+            <div style={{ display: "flex", justifyContent: "flex-start" }}>
+              <div style={{ background: C.blanco, borderRadius: "16px 16px 16px 4px", padding: "14px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: C.grisOscuro, opacity: 0.4, animation: `pulse 1s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Input area */}
+          <div style={{ marginTop: "auto", display: "flex", gap: 8, paddingTop: 8, borderTop: `1px solid ${C.borde}` }}>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Escribe tu pregunta... (Enter para enviar)"
+              rows={2}
+              disabled={cargando}
+              style={{
+                flex: 1,
+                border: `1px solid ${C.borde}`,
+                borderRadius: 10,
+                padding: "10px 12px",
+                fontSize: 13,
+                fontFamily: "Inter, sans-serif",
+                resize: "none",
+                outline: "none",
+                background: cargando ? C.fondoPanel : C.blanco,
+              }}
+            />
+            <button
+              onClick={() => enviar(input)}
+              disabled={cargando || !input.trim()}
+              style={{
+                background: cargando || !input.trim() ? "#ccc" : C.rojo,
+                color: C.blanco,
+                border: "none",
+                borderRadius: 10,
+                padding: "10px 20px",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: cargando || !input.trim() ? "default" : "pointer",
+                fontFamily: "Inter, sans-serif",
+                alignSelf: "flex-end",
+              }}
+            >
+              Enviar
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
+
+
 export default function JourneyExperienceApp() {
   const [tab, setTab] = useState("home");
   const [insights, setInsights] = useState(INSIGHTS_DATA);
