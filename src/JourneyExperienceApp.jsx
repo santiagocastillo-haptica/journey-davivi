@@ -2916,7 +2916,17 @@ export default function JourneyExperienceApp() {
               </button>
             );
           })}
-
+          <span style={{
+            marginLeft: "auto",
+            fontSize: 10,
+            color: C.grisOscuro,
+            fontWeight: 500,
+            letterSpacing: "0.04em",
+            paddingBottom: 4,
+            opacity: 0.7,
+          }}>
+            Desarrollado por Háptica
+          </span>
         </div>
         {cargandoFirestore && (
           <div style={{
